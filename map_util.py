@@ -17,6 +17,8 @@ def geo_df():
         gdf = gpd.GeoDataFrame(df,
                            geometry=gpd.points_from_xy(df['latitude'], df['longitude']))
         gdf = gdf.set_crs('EPSG:26916')
+        rv_lst.append(gdf)
+    return rv_lst
 
 def distance_series(df, point):
     lat, long = point
@@ -34,7 +36,7 @@ def within_distance(point, library, pharmacy, starbucks, murals, walk_dist = 1):
     lib_dist = lib_dist[lib_dist <= 1]
     pharm_dist = pharm_dist[pharm_dist <= 1]
     sbucks_dist = sbucks_dist[sbucks_dist <= 1]
-    murals_dist = murals_dist[murals_dist <=1 1]
+    murals_dist = murals_dist[murals_dist <= 1]
     
     return lib_dist, pharm_dist, sbucks_dist, murals_dist
 

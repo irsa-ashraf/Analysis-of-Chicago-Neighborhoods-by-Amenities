@@ -18,7 +18,7 @@ def go():
     
 
     cafes = get_long_lat(zips)
-    cafe_df = pd.DataFrame(cafes, columns=["Address", "Longitude", "Latitude"])
+    cafe_df = pd.DataFrame(cafes, columns=["address", "longitude", "latitude"])
     return cafe_df
 
 def get_long_lat(zips):

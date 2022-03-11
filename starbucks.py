@@ -37,7 +37,6 @@ def get_long_lat(zips):
                 one_cafe.append(cafe['lat'])
                 one_cafe.append(cafe['lon'])
                 cafe_lst.append(one_cafe)
-            else:
                 seen.add((lat, lon))
     return cafe_lst
 

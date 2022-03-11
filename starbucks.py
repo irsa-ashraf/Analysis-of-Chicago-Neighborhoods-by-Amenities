@@ -16,7 +16,7 @@ def go():
         '60701']
 
     cafes = get_long_lat(zips)
-    cafe_df = pd.DataFrame(cafes, columns=["address", "latitude", "long"])
+    cafe_df = pd.DataFrame(cafes, columns=["address", "latitude", "longitude"])
     return cafe_df
 
 

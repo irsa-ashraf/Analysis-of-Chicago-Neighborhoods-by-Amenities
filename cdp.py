@@ -59,11 +59,21 @@ class DataPortalCollector:
         return pharmacy_df
 
 
-def clean_libraries():
+    def get_murals(self):
+        '''
+        '''
+        
+        results = self.client.get("we8h-apcf")
+        murals_df = pd.DataFrame.from_dict(results)
+        
+        return murals_df
+
+
+def clean_libraries(dpc_class):
     '''
     '''
-    dpc = DataPortalCollector()
-    libs = dpc.get_libraries()
+
+    libs = dpc_class.get_libraries()
 
     filter_data = libs[["name_", "address", "location"]]
 
@@ -78,11 +88,11 @@ def clean_libraries():
     return split_location
 
 
-def clean_pharmacies():
+def clean_pharmacies(dpc_class):
     '''
     '''
-    dpc = DataPortalCollector()
-    pharms = dpc.get_pharmacies()
+
+    pharms = dpc_class.get_pharmacies()
 
     filter_data = pharms[["pharmacy_name", "address", "geocoded_column", "status"]]
 
@@ -111,7 +121,22 @@ def clean_pharmacies():
     pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "name"})
     pharmacy_data["type"] = "pharmacy"
 
+    pharmacy_data.dropna(inplace = True)
+
     return pharmacy_data
+
+
+def clean_murals(dpc_class):
+    '''
+    '''
+
+    murals_df = dpc_class.get_murals()
+
+    murals_df = murals_df[["artwork_title", "street_address", "latitude", "longitude"]]
+    murals_df.rename(columns = {'artwork_title':'name', "street_address":'address'}, inplace = True)
+    murals_df.dropna(inplace = True)
+
+    return murals_df
 
 
 # append THE TWO DATAFRAMES
@@ -119,12 +144,14 @@ def append_pandas():
     '''
     
     '''
-    library_data = clean_libraries()
-    pharmacy_data = clean_pharmacies()
+    dpc = DataPortalCollector()
 
-    all_data = pd.concat([library_data,pharmacy_data])
-    print(all_data)
-    return all_data
+    library_data = clean_libraries(dpc)
+    pharmacy_data = clean_pharmacies(dpc)
+    murals_data = clean_murals(dpc)
+
+
+    return (library_data, pharmacy_data, murals_data)
 
 
 

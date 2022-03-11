@@ -17,9 +17,9 @@ def geo_df():
     for df in pd_dfs:
         gdf = convert_to_gdf(df)
         rv_lst.append(gdf)
-    cafe_df = go()
-    gdf = convert_to_gdf(cafe_df)
-    rv_lst.append(gdf)
+    #cafe_df = go()
+    #gdf = convert_to_gdf(cafe_df)
+    #rv_lst.append(gdf)
 
     return rv_lst
 
@@ -61,3 +61,20 @@ def compute_shannon_index(pt, lib, pharm, sbucks, murals):
         score += -(prop * math.log(prop))
     
     return score
+
+def prepare_chlorpleth(df, column, description):
+    bins = df[arg].quantile([0, 0.2, 0.4, 0.6, 0.8, 1])
+    folium.Choropleth(
+        geo_data=pdf,
+        data=demo,
+        columns=["GEOG", "BLACK"],
+        key_on="feature.properties.pri_neigh",
+        fill_color="YlGn",
+        fill_opacity=0.7,
+        line_opacity=0.5,
+        legend_name="% Black residents",
+        name='demographic info',
+        bins=demo_bins,
+        reset=True,
+    ).add_to(map)
+    pass

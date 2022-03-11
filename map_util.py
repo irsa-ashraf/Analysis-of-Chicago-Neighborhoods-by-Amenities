@@ -8,17 +8,26 @@ import math
 
 from geopy import distance
 from cdp import append_pandas
+from starbucks import go
 
 def geo_df():
     pd_dfs = append_pandas()
     rv_lst = []
 
     for df in pd_dfs:
-        gdf = gpd.GeoDataFrame(df,
-                           geometry=gpd.points_from_xy(df['latitude'], df['longitude']))
-        gdf = gdf.set_crs('EPSG:26916')
+        gdf = convert_to_gdf(df)
         rv_lst.append(gdf)
+    cafe_df = go()
+    gdf = convert_to_gdf(cafe_df)
+    rv_lst.append(gdf)
+
     return rv_lst
+
+def convert_to_gdf(df):
+    gdf = gpd.GeoDataFrame(df,
+                geometry=gpd.points_from_xy(df['latitude'], df['longitude']))
+    gdf = gdf.set_crs('EPSG:26916')
+    return gdf
 
 def distance_series(df, point):
     lat, long = point

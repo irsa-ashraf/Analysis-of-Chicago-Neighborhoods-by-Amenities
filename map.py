@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 import map_util
+import starbucks
 
 
 def make_map_and_plot(geojson):
@@ -13,14 +14,12 @@ def make_map_and_plot(geojson):
     print('are we getting here...?')
 
     dfs = map_util.geo_df() 
-    starbucks = dfs[1] # replace with a real function
     
-    keys = ['library', 'pharmacy', 'murals']
+    keys = ['library', 'pharmacy', 'murals', 'starbucks']
 
     print('did we get here?')
     for i, df in enumerate(dfs):
         cluster_points(df, keys[i], map)
-    cluster_points(starbucks, 'starbucks', map)
 
     folium.LayerControl().add_to(map)
     map.save('map.html')

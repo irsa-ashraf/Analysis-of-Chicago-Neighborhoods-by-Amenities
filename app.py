@@ -1,32 +1,30 @@
 
-from dash import Dash, html, dcc
-import plotly.express as px
-import pandas as pd
+import dash
+import dash_leaflet as dl
 
-app = Dash(__name__)
+app = dash.Dash()
+app.layout = dl.Map(dl.TileLayer(), style={'width': '1000px', 'height': '500px'}, center=[41.8781, -87.5298], zoom=10)
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
-df = pd.DataFrame({
-    "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-    "Amount": [4, 1, 2, 2, 4, 5],
-    "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-})
 
-fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
+'''
+def cluster_points(df, key, map):
 
-app.layout = html.Div(children=[
-    html.H1(children='Hello Dash'),
+    color = {'pharmacy': 'red', 'library': 'blue',
+            'starbucks': 'green', 'murals':'purple'}
 
-    html.Div(children='''
-        Dash: A web application framework for your data.
-    '''),
+    icon = {'pharmacy': 'heart', 'library': 'book',
+            'starbucks': 'star', 'murals':'cloud'}
 
-    dcc.Graph(
-        id='example-graph',
-        figure=fig
-    )
-])
+    cluster = plugins.MarkerCluster(name=key).add_to(map)
+    for row in df.itertuples():
+        folium.Marker(
+        location = (row.latitude, row.longitude),
+        popup = row.name,
+        icon=folium.Icon(color=color[key], icon=icon[key])
+        ).add_to(cluster)
+
+'''
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+

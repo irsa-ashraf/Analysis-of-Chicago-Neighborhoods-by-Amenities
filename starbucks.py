@@ -15,10 +15,43 @@ def go():
         '60688', '60689', '60694', '60695', '60697', '60699', '60684', '60685', '60690', '60691', '60693', '60696',
         '60701']
 
-    cafes = get_long_lat(zips)
-    cafe_df = pd.DataFrame(cafes, columns=["address", "latitude", "longitude"])
-    return cafe_df
+    cafe_dicts = get_long_lat(zips)
+    #cafe_df = pd.DataFrame(cafes, columns=["address", "latitude", "longitude"])
+    return cafe_dicts
 
+
+def get_long_lat(zips):
+    seen = set()
+    cafe_dicts = []
+    for zipcode in zips:
+        url = gen_url(zipcode)
+        req = requests.get(url)
+        data_json = json.loads(req.text)
+        if data_json:
+            for cafe in data_json:
+                if (cafe['lat'], cafe['lon']) not in seen:
+                    one_cafe = {}
+                    one_cafe['lat'] = cafe['lat']
+                    one_cafe['lon'] = cafe['lon']
+                    cafe_dicts.append(one_cafe)
+                    seen.add((cafe['lat'], cafe['lon']))
+    return cafe_dicts
+
+
+def gen_url(zipcode):
+    return f"http://open.mapquestapi.com/nominatim/v1/search.php?key={API}&format=json&q=starbucks+chicago+{zipcode}+[cafe]&addressdetails=1&limit=10"
+
+
+'''
+def format_location(display_name):    
+    split = display_name.split(',')
+    if any(char.isdigit() for char in split[1]):
+        name = split[2]
+        idx = 2
+    else:
+        name = split[1]
+        idx = 1
+    return (name + ',' + split[idx + 1])
 
 def get_long_lat(zips):
     seen = set()
@@ -39,18 +72,4 @@ def get_long_lat(zips):
                 cafe_lst.append(one_cafe)
                 seen.add((lat, lon))
     return cafe_lst
-
-
-def gen_url(zipcode):
-    return f"http://open.mapquestapi.com/nominatim/v1/search.php?key={API}&format=json&q=starbucks+chicago+{zipcode}+[cafe]&addressdetails=1&limit=10"
-
-
-def format_location(display_name):    
-    split = display_name.split(',')
-    if any(char.isdigit() for char in split[1]):
-        name = split[2]
-        idx = 2
-    else:
-        name = split[1]
-        idx = 1
-    return (name + ',' + split[idx + 1])
+'''

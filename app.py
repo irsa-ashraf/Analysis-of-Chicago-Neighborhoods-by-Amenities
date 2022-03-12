@@ -1,29 +1,22 @@
 
-import dash
+from dash import Dash, html
 import dash_leaflet as dl
+import dash_leaflet.express as dlx
+import starbucks
 
-app = dash.Dash()
-app.layout = dl.Map(dl.TileLayer(), style={'width': '1000px', 'height': '500px'}, center=[41.8781, -87.5298], zoom=10)
 
+cafe_dicts = starbucks.go()
 
-'''
-def cluster_points(df, key, map):
+app = Dash()
+app.layout = html.Div([
+    dl.Map([
+        dl.TileLayer(),
+        dl.GeoJSON(data=dlx.dicts_to_geojson(cafe_dicts), cluster=True),
+        dl.GeoJSON(url='assets/leaflet_50k.pbf', format="geobuf", cluster=True, id="sc", zoomToBoundsOnClick=True,
+                   superClusterOptions={"radius": 100}),
+    ], center=(41.8781, -87.5298), zoom=10, style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}),
+])
 
-    color = {'pharmacy': 'red', 'library': 'blue',
-            'starbucks': 'green', 'murals':'purple'}
-
-    icon = {'pharmacy': 'heart', 'library': 'book',
-            'starbucks': 'star', 'murals':'cloud'}
-
-    cluster = plugins.MarkerCluster(name=key).add_to(map)
-    for row in df.itertuples():
-        folium.Marker(
-        location = (row.latitude, row.longitude),
-        popup = row.name,
-        icon=folium.Icon(color=color[key], icon=icon[key])
-        ).add_to(cluster)
-
-'''
 
 if __name__ == '__main__':
     app.run_server(debug=True)

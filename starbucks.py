@@ -31,6 +31,7 @@ def get_long_lat(zips):
             for cafe in data_json:
                 if (cafe['lat'], cafe['lon']) not in seen:
                     one_cafe = {}
+                    one_cafe['name'] = format_location(cafe['display_name'])
                     one_cafe['lat'] = cafe['lat']
                     one_cafe['lon'] = cafe['lon']
                     cafe_dicts.append(one_cafe)
@@ -42,7 +43,6 @@ def gen_url(zipcode):
     return f"http://open.mapquestapi.com/nominatim/v1/search.php?key={API}&format=json&q=starbucks+chicago+{zipcode}+[cafe]&addressdetails=1&limit=10"
 
 
-'''
 def format_location(display_name):    
     split = display_name.split(',')
     if any(char.isdigit() for char in split[1]):
@@ -53,6 +53,7 @@ def format_location(display_name):
         idx = 1
     return (name + ',' + split[idx + 1])
 
+'''
 def get_long_lat(zips):
     seen = set()
     cafe_lst = []

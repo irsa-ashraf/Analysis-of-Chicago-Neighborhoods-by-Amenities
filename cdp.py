@@ -5,7 +5,6 @@ Importing and filtering data on Chicago's libraries, pharmacies,
 """
 from matplotlib.style import library
 from sodapy import Socrata
-
 import json
 import pandas as pd
 import starbucks
@@ -16,9 +15,11 @@ class DataPortalCollector:
 
     def __init__(self):
         '''
-        # COME BACK FOR DOCSTRING HERE # 
+        Constructor for class.
+        Attributes:
+            - client: Socrata object that creates a connection to the API
         '''
-        # Unauthenticated client only works with public data sets. 
+
         self.client = Socrata("data.cityofchicago.org", API_KEY)
         
     def get_libraries(self):
@@ -58,6 +59,13 @@ class DataPortalCollector:
 
     def get_murals(self):
         '''
+        Pull the data on murals located in Chicago from Chicago Open Data Portal
+            and save as a pandas dataframe
+        Inputs:
+            - none
+        Returns:
+            - murals_df: (pandas dataframe) a dataframe with name, address,
+                latitude and longitude of all murals in Chicago
         '''
         
         results = self.client.get("we8h-apcf")
@@ -68,6 +76,14 @@ class DataPortalCollector:
 
 def clean_libraries(dpc_class):
     '''
+    Gets the library dataframe from the DataPortalCollector class,  
+        gets latitude and longitude from location, cleans dataframe 
+            and changes column names. 
+
+    Inputs:
+        - dpc_class (object): a DataPortalCollector class object 
+    Returns:
+        - library dataframe 
     '''
 
     libs = dpc_class.get_libraries()
@@ -89,6 +105,13 @@ def clean_libraries(dpc_class):
 
 def clean_pharmacies(dpc_class):
     '''
+    Gets the pharmacy dataframe from the DataPortalCollector class,  
+        cleans dataframe and changes column names. 
+
+    Inputs:
+        - dpc_class (object): a DataPortalCollector class object 
+    Returns:
+        - pharmacies dataframe 
     '''
 
     pharms = dpc_class.get_pharmacies()
@@ -102,8 +125,6 @@ def clean_pharmacies(dpc_class):
     
     # fix coordinate column names
     split_location_list = split_location_list.rename(columns = {0: "longitude", 1: "latitude"})
-
-    # only columns we want
     condensed = split_location_list[["pharmacy_name", "address", "latitude", "longitude", "status"]]
 
     # clean status column
@@ -129,6 +150,13 @@ def clean_pharmacies(dpc_class):
 
 def clean_murals(dpc_class):
     '''
+    Gets the murals dataframe from the DataPortalCollector class,  
+        cleans dataframe and changes column names. 
+
+    Inputs:
+        - dpc_class (object): a DataPortalCollector class object 
+    Returns:
+        - murals dataframe 
     '''
 
     murals_df = dpc_class.get_murals()
@@ -140,14 +168,19 @@ def clean_murals(dpc_class):
     murals_df.dropna(inplace = True)
     murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
     
-    
     return murals_df
 
 
-# append THE TWO DATAFRAMES
 def append_pandas():
     '''
-    
+    Instantiates a DataPortalCollector object, and runs the 
+        above functions to clean and return dataframes
+
+    Inputs: (None)
+
+    Returns:
+        - Tuple: tuple containing the three dataframes for 
+            libraries, pharmacies and murals 
     '''
     dpc = DataPortalCollector()
 
@@ -155,203 +188,23 @@ def append_pandas():
     pharmacy_data = clean_pharmacies(dpc)
     murals_data = clean_murals(dpc)
 
-
     return (library_data, pharmacy_data, murals_data)
 
 def get_data_dicts():
+    '''
+    Converts dataframes to dictionaries
 
-    dict_lst = []
+    Inputs: (None)
+
+    Returns:
+        
+    '''
+
     lib, pharm, mur = append_pandas()
     
     lib_dict = lib.to_dict('records')
     pharm_dict = pharm.to_dict('records')
     mur_dict = mur.to_dict('records')
-    
     starbucks_dict = starbucks.go()
 
     return lib_dict, pharm_dict, mur_dict, starbucks_dict
-
-
-
-
-
-
-
-
-
-
-
-###########################################################################################
-# DELETE ROWS BELOW HERE LATER ############
-
-
-    # first_col = split_location.pop("type")
-    # # cop = split_location.copy()
-    
-    # split_location = split_location.insert(0, "type", first_col)
-    # move type to front
-
-
-# def obtain_libraries():
-#     '''
-#     Create an instance of the DataPortalClass to find all libraries
-#         and return the dataframe of libraries (NOT SURE IF THIS SHOULD BE BROKEN INTO THIS SEPARATE FUNCTION)
-#     Inputs:
-#         - none
-#     Returns:
-#         - libs 
-#     '''
-#     dpc = DataPortalCollector()
-#     libs = dpc.get_libraries()
-#     print(type(libs))
-#     return libs
-
-# def obtain_pharmacies():
-#     '''
-#     '''
-#     dpc = DataPortalCollector()
-#     pharms = dpc.get_pharmacies()
-#     return pharms
-
-
-
-
-
-# # Converting to pandas dataframe 
-# # put these functions in different file?
-# # also combine to call function within function so we can make these generalized to pulling anyh
-# # of the three datasets and then create them all in one overall function? 
-# # would have to review how to call function in function
-
-# def obj_dict(obj):
-#     '''
-#     '''
-#     return obj.__dict__
-
-
-# def to_json_libraries(obj):
-#     '''
-#     '''
-#     ob_dict = obj_dict(obj)
-#     dpc = DataPortalCollector()
-#     libs = dpc.get_libraries()
-    
-#     # convert list to json
-#     json_string = json.dumps(libs, default = ob_dict) #https://stackoverflow.com/questions/26033239/list-of-objects-to-json-with-python
-
-#     return json_string
-
-# def to_json_pharmacies(obj_dict):
-#     '''
-#     '''
-#     dpc = DataPortalCollector()
-#     libs = dpc.get_pharmacie()
-#     # convert list to json
-#     json_string = json.dumps(libs, default = obj_dict)
-#     #print(json_string, "json_string")
-
-#     return json_string
-
-# def to_pandas(obj_dict):
-#     '''
-#     '''
-#     dpc = DataPortalCollector()
-#     libs = dpc.get_libraries()
-#     #for lib in libs:
-#     df = pd.DataFrame([x.as_dict() for x in libs])
-
-
-
-
-# def to_pandas_libraries(obj_dict):
-#     '''
-#     '''
-#     json_string = to_json_libraries(obj_dict)
-#     libraries_pd = pd.read_json(json_string)
-#     return libraries_pd
-
-# def to_pandas_pharmacies(obj_dict):
-#     '''
-#     '''
-#     json_string = to_json_pharmacies(obj_dict)
-#     pharmacies_pd = pd.read_json(json_string)
-#     return pharmacies_pd
-
-# li = cdp.to_pandas(json_string, obj_dict)
-
-
-# questions for ian - do we want to split coordinates into two columns,
-# one for longitude/one for latitude? Currently some of these data frames do
-# coordinates column = ("longitude, latitude") and others do ("latitude", "longitude")
-
-
-
-
-
-
-
-
-
-
-# json_string = json.dumps(list_name, default=obj_dict)
-# # loading in ipython3 # 
-
-# dpc = DataPortalCollector()
-# libs = dpc.get_libraries()
-# pharms = dpc.get_pharmacie()
-# for lib in libs:
-#     print(type(print(lib)))
-
-
-# # how to call this:
-# ipython libviewer.py -- --limit=1000
-
-# view things in dataframe
-#li.columns
-# li.loc[:,"name"]
-#li.loc[:,"coordinates"]
-
-
-
-# def _decode_library_data(dct):
-#     '''
-#     '''
-#     #First check that all required attributes are inside the dictionary 
-#     if all (key in dct for key in ["name_","location","address"]):
-#         return Library(dct["name_"], (dct["location"]['latitude'], dct["location"]['longitude']), dct["address"])
-#     return dct  
-
-# def _decode_pharmacy_data(dct): 
-#     '''
-#     '''
-#     if all (key in dct for key in ["pharmacy_name","geocoded_column","address"]):
-#         return Pharmacy(dct["pharmacy_name"], dct["geocoded_column"], \
-#             dct["address"])
-#     #print(dct, "dct")
-#     return dct  # this isn't working so it's returning all columns...
-
-
-
-
-
-
-
-
-
-
-
-
-    # for i in filter_data.location:
-    #     print(i)
-    #     for key, val in i.items():
-    #         if i[key] == "latitude":
-    #             x = i.val
-
-
-        # for lib_dict in results: 
-        #     #print(lib_dict, "lib_dict")
-        #     library = _decode_library_data(lib_dict)
-
-        #     libraries.append(library)
-
-        # return libraries # why does libs = dpc.get_libraries() return list of objects

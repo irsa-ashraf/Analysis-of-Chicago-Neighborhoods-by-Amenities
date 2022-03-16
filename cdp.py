@@ -1,59 +1,67 @@
 """
-Importing and filtering data on Chicago's libraries, pharmacies,
+Importing and filtering data on Chicago's
+    libraries, pharmacies,
     and murals for use in our software.
 
 """
+import json
 from matplotlib.style import library
 from sodapy import Socrata
-import json
 import pandas as pd
 import starbucks
 
+
 API_KEY = "9Qto0x2IrJoK0BwbM4NSKwpkr"
 
-class DataPortalCollector: 
+class DataPortalCollector:
 
     def __init__(self):
         '''
         Constructor for class.
         Attributes:
-            - client: Socrata object that creates a connection to the API
+            - client: Socrata object that creates
+                a connection to the API
         '''
 
         self.client = Socrata("data.cityofchicago.org", API_KEY)
-        
+
+
     def get_libraries(self):
         '''
-        Pull the the data on libraries located in Chicago from Chicago Open Data Portal
+        Pull the the data on libraries located in
+            Chicago from Chicago Open Data Portal
             and save as a pandas dataframe
         Inputs:
             - none
         Returns:
-            -  library_df: (pandas dataframe) a dataframe with name,
+            -  library_df: (pandas dataframe) a
+                dataframe with name,
                 latitude, longitude, and address of
                 all libraries in Chicago
         '''
-        
+
         results = self.client.get("x8fc-8rcq")
         library_df = pd.DataFrame.from_dict(results)
-        
+
         return library_df
+
 
     def get_pharmacies(self):
         '''
-        Pull the data on pharmacies located in Chicago from Chicago Open Data Portal
+        Pull the data on pharmacies located in Chicago from
+            Chicago Open Data Portal
             and save as a pandas dataframe
-        Inputs: 
+        Inputs:
             - none
         Returns:
             - pharmacy_df: (pandas dataframe) a dataframe with name,
                 latitude, longitude, address, and open/closed status of all
                 pharmacies in Chicago
         '''
-        
+
         results = self.client.get("2et2-5aw3")
         pharmacy_df = pd.DataFrame.from_dict(results)
-        
+
         return pharmacy_df
 
 
@@ -67,23 +75,23 @@ class DataPortalCollector:
             - murals_df: (pandas dataframe) a dataframe with name, address,
                 latitude and longitude of all murals in Chicago
         '''
-        
+
         results = self.client.get("we8h-apcf")
         murals_df = pd.DataFrame.from_dict(results)
-        
+
         return murals_df
 
 
 def clean_libraries(dpc_class):
     '''
-    Gets the library dataframe from the DataPortalCollector class,  
-        gets latitude and longitude from location, cleans dataframe 
-            and changes column names. 
+    Gets the library dataframe from the DataPortalCollector class,
+        gets latitude and longitude from location, cleans dataframe
+            and changes column names.
 
     Inputs:
-        - dpc_class (object): a DataPortalCollector class object 
+        - dpc_class (object): a DataPortalCollector class object
     Returns:
-        - library dataframe 
+        - library dataframe
     '''
 
     libs = dpc_class.get_libraries()
@@ -93,25 +101,26 @@ def clean_libraries(dpc_class):
     # split location column up
     split_location_col = [filter_data, pd.DataFrame(filter_data["location"].tolist()).iloc[:, :3]]
     split_location = pd.concat(split_location_col, axis=1).drop(['location', "human_address"], axis=1)
-   
+
     # change column name
     split_location = split_location.rename(columns = {"name_": "tooltip", "latitude": "lat", "longitude": "lon"})
     split_location["type"] = "library"
     split_location["color"] = "blue"
     split_location["tooltip"] = split_location.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
-    
+
     return split_location
 
 
 def clean_pharmacies(dpc_class):
     '''
-    Gets the pharmacy dataframe from the DataPortalCollector class,  
-        cleans dataframe and changes column names. 
+    Gets the pharmacy dataframe from
+        the DataPortalCollector class,
+        cleans dataframe and changes column names.
 
     Inputs:
-        - dpc_class (object): a DataPortalCollector class object 
+        - dpc_class (object): a DataPortalCollector class object
     Returns:
-        - pharmacies dataframe 
+        - pharmacies dataframe
     '''
 
     pharms = dpc_class.get_pharmacies()
@@ -122,7 +131,7 @@ def clean_pharmacies(dpc_class):
     split_location = pd.concat([filter_data, filter_data["geocoded_column"].apply(pd.Series)], axis=1)
     split_location = split_location[["pharmacy_name", "address", "status", "coordinates"]]
     split_location_list = pd.concat([split_location, split_location["coordinates"].apply(pd.Series)], axis=1)
-    
+
     # fix coordinate column names
     split_location_list = split_location_list.rename(columns = {0: "longitude", 1: "latitude"})
     condensed = split_location_list[["pharmacy_name", "address", "latitude", "longitude", "status"]]
@@ -150,13 +159,14 @@ def clean_pharmacies(dpc_class):
 
 def clean_murals(dpc_class):
     '''
-    Gets the murals dataframe from the DataPortalCollector class,  
-        cleans dataframe and changes column names. 
+    Gets the murals dataframe from
+        the DataPortalCollector class,
+        cleans dataframe and changes column names
 
     Inputs:
-        - dpc_class (object): a DataPortalCollector class object 
+        - dpc_class (object): a DataPortalCollector class object
     Returns:
-        - murals dataframe 
+        - murals dataframe
     '''
 
     murals_df = dpc_class.get_murals()
@@ -167,20 +177,22 @@ def clean_murals(dpc_class):
     murals_df["color"] = "violet"
     murals_df.dropna(inplace = True)
     murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
-    
+
     return murals_df
 
 
 def append_pandas():
     '''
-    Instantiates a DataPortalCollector object, and runs the 
-        above functions to clean and return dataframes
+    Instantiates a DataPortalCollector object,
+        and runs the above functions
+        to clean and return dataframes
 
-    Inputs: (None)
+    Inputs:
+        -none
 
     Returns:
-        - Tuple: tuple containing the three dataframes for 
-            libraries, pharmacies and murals 
+        - Tuple: tuple containing the three dataframes for
+            libraries, pharmacies and murals
     '''
     dpc = DataPortalCollector()
 
@@ -194,15 +206,16 @@ def get_data_dicts():
     '''
     Converts each dataframe to a list of dictionaries
 
-    Inputs: (None)
+    Inputs:
+        - none
 
     Returns:
-        four lists of dictionaries, for our four dataframes 
+        - four lists of dictionaries, for our four dataframes
             (libraries, pharmacies, murals, Starbucks)
     '''
 
     lib, pharm, mur = append_pandas()
-    
+
     lib_dict = lib.to_dict('records')
     pharm_dict = pharm.to_dict('records')
     mur_dict = mur.to_dict('records')

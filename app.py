@@ -14,20 +14,27 @@ import starbucks
 from demographics import import_income, import_demographics
 from dash.dependencies import Output, Input
 
-# Get data
+# Get data to create amenity layers
 lib_dict, pharm_dict, mur_dict, cafe_dicts = cdp.get_data_dicts()
 
+# Create geojsons for amenities
+geojson_starb = dlx.dicts_to_geojson(cafe_dicts)
+geojson_libs = dlx.dicts_to_geojson(lib_dict)
+geojson_pharms = dlx.dicts_to_geojson(pharm_dict)
+geojson_murals = dlx.dicts_to_geojson(mur_dict)
 
+# Get data to compute Shannon score
 lib, pharm, murals = mu.geo_df()
 sbucks = starbucks.starbucks_df()
 
-# get choropleth data for income and demographics
+# Get choropleth data for income and demographics
 income_choro, demo_choro, colors = mu.choropleth_data()
-# customize colors for income data
+
+# Customize colors for income data
 bin_inc, colorscale_inc, bin_demo, colorscale_demo = colors
 style = dict(weight=2, opacity=1, color='white', dashArray='3', fillOpacity=0.7)
 
-# create colorbars
+# Create colorbars
 ctg_demo = ["{:.1f}+".format(cls, bin_demo[i + 1]) for i, cls in
                         enumerate(bin_demo[:-1])] + ["{:.1f}+".format(bin_demo[-1])]
 colorbar_demo = dlx.categorical_colorbar(categories=ctg_demo,
@@ -38,6 +45,7 @@ ctg_inc = ["{:.1f}+".format(cls, bin_inc[i + 1]) for i, cls in enumerate(bin_inc
 colorbar_inc = dlx.categorical_colorbar(categories=ctg_inc, colorscale=colorscale_inc,
                                 className = "Per capita income in 1K$",
                                 width = 300, height = 30, position = "bottomleft")
+
 # Geojson rendering logic, must be JavaScript as it is executed in clientside.
 style_handle = assign("""function(feature, context){
     const {classes, colorscale, style, colorProp} = context.props.hideout;  // get props from hideout
@@ -68,11 +76,21 @@ choro_demo = dl.GeoJSON(data = json.loads(demo_choro.to_json()),  # url to geojs
                      id="choro_demo")
 
 
-# Create geojsons for amenities
-geojson_starb = dlx.dicts_to_geojson(cafe_dicts)
-geojson_libs = dlx.dicts_to_geojson(lib_dict)
-geojson_pharms = dlx.dicts_to_geojson(pharm_dict)
-geojson_murals = dlx.dicts_to_geojson(mur_dict)
+# Create info panel function
+def get_info(si=None):
+    header = [html.H4("Amenities in Chicago Community Areas Within 15 Minutes Walking Distance")]
+    if not si:
+        return header + [html.P("Click anywhere in Chicago to calculate"\
+                        "the density and diversity of amenities within walking"\
+                        "distance of the selected coordinates")]
+    return header + [html.B("Shannon Index Score: {:.4f}".format(si)) , html.Br(),
+                    "A score above 0.0273 indicates that "\
+                    "there is at least one amenity from each category, or several from few.",
+                    html.Sup("2")]
+
+# Create info control
+info = html.Div(children=get_info(), id="info", className="info",
+                style={"position": "absolute", "top": "10px", "left": "10px", "z-index": "1000"})
 
 
 # Generate icons
@@ -83,7 +101,7 @@ return L.marker(latlng, {icon: point});
 }""")
 
 
-# Create app.
+# Create app
 app = Dash()
 app.layout = html.Div(children=[
     html.H1(children="Chicago Amenities"),
@@ -123,7 +141,7 @@ app.layout = html.Div(children=[
                             cluster=True,
                             options=dict(pointToLayer=draw_point),
                             zoomToBounds=True)]), name='libraries', checked=True)]),
-                    dl.TileLayer(), colorbar_inc, colorbar_demo
+                    dl.TileLayer(), colorbar_inc, colorbar_demo, info
                 ],
         zoom=10,
         center=(41.8781, -87.5298),
@@ -134,11 +152,11 @@ app.layout = html.Div(children=[
 )
 
 
-@app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
-def info_hover(feature):
-    return get_info(feature)
-
+# add mouse click feature
+@app.callback(Output("info", "children"), [Input("map", "click_lat_lng")])
+def info_click(click_lat_lng):
+    si = mu.compute_shannon_index(click_lat_lng, lib, pharm, murals, sbucks)
+    return get_info(si)
 
 if __name__ == '__main__':
     app.run_server()
-

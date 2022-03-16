@@ -31,7 +31,7 @@ def convert_to_gdf(df):
 def distance_series(df, point):
     lat, long = point
     dist_series = df.apply(lambda x: distance.distance(
-                        (x.latitude, x.longitude),
+                        (x.lat, x.lon),
                         (lat, long)).miles, axis=1)
     return dist_series
 
@@ -48,9 +48,10 @@ def within_distance(point, library, pharmacy, starbucks, murals, walk_dist = 1):
     
     return lib_dist, pharm_dist, sbucks_dist, murals_dist
 
-def compute_shannon_index(pt, lib, pharm, sbucks, murals):
+def compute_shannon_index(pt, lib, pharm, murals, sbucks):
     total = lib.shape[0] + pharm.shape[0] + sbucks.shape[0] + murals.shape[0]
-    
+    print(total)
+
     within_dist = within_distance(pt, lib, pharm, sbucks, murals)
     
     score = 0

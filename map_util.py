@@ -25,7 +25,7 @@ def geo_df():
 
 def convert_to_gdf(df):
     gdf = gpd.GeoDataFrame(df,
-                geometry=gpd.points_from_xy(df['latitude'], df['longitude']))
+                geometry=gpd.points_from_xy(df['lat'], df['lon']))
     gdf = gdf.set_crs('EPSG:26916')
     return gdf
 

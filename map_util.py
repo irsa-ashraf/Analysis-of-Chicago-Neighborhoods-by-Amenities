@@ -10,12 +10,14 @@ from geopy import distance
 from cdp import append_pandas
 from starbucks import go
 
-def geo_df():
+COLOR_LIST = ['blue', 'red', 'violet']
+
+def geo_df(lst):
     pd_dfs = append_pandas()
     rv_lst = []
 
-    for df in pd_dfs:
-        gdf = convert_to_gdf(df)
+    for i, df in enumerate(pd_dfs):
+        gdf = convert_to_gdf(df, COLOR_LIST[i])
         rv_lst.append(gdf)
     #cafe_df = go()
     #gdf = convert_to_gdf(cafe_df)
@@ -23,9 +25,11 @@ def geo_df():
 
     return rv_lst
 
-def convert_to_gdf(df):
+def convert_to_gdf(df, color):
     gdf = gpd.GeoDataFrame(df,
                 geometry=gpd.points_from_xy(df['lat'], df['lon']))
+    gdf['tooltips'] = gdf['name'] + '({})'.format(gdf['type'])
+    gdf['color'] = color
     gdf = gdf.set_crs('EPSG:26916')
     return gdf
 
@@ -58,8 +62,11 @@ def compute_shannon_index(pt, lib, pharm, sbucks, murals):
     
     for amen in within_dist:
         prop = amen.shape[0]/total
+        if prop == 0:
+            continue
         score += -(prop * math.log(prop))
-    
+    if score == 0:
+        return 'no amenities in the area'
     return score
 
 def prepare_chlorpleth(df, column, description):

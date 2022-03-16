@@ -10,14 +10,14 @@ from geopy import distance
 from cdp import append_pandas
 from starbucks import go
 
-COLOR_LIST = ['blue', 'red', 'violet']
 
-def geo_df(lst):
+
+def geo_df():
     pd_dfs = append_pandas()
     rv_lst = []
 
     for i, df in enumerate(pd_dfs):
-        gdf = convert_to_gdf(df, COLOR_LIST[i])
+        gdf = convert_to_gdf(df)
         rv_lst.append(gdf)
     #cafe_df = go()
     #gdf = convert_to_gdf(cafe_df)
@@ -28,8 +28,6 @@ def geo_df(lst):
 def convert_to_gdf(df, color):
     gdf = gpd.GeoDataFrame(df,
                 geometry=gpd.points_from_xy(df['lat'], df['lon']))
-    gdf['tooltips'] = gdf['name'] + '({})'.format(gdf['type'])
-    gdf['color'] = color
     gdf = gdf.set_crs('EPSG:26916')
     return gdf
 

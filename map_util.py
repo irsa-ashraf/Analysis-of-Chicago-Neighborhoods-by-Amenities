@@ -19,13 +19,10 @@ def geo_df():
     for i, df in enumerate(pd_dfs):
         gdf = convert_to_gdf(df)
         rv_lst.append(gdf)
-    #cafe_df = go()
-    #gdf = convert_to_gdf(cafe_df)
-    #rv_lst.append(gdf)
 
     return rv_lst
 
-def convert_to_gdf(df, color):
+def convert_to_gdf(df):
     gdf = gpd.GeoDataFrame(df,
                 geometry=gpd.points_from_xy(df['lat'], df['lon']))
     gdf = gdf.set_crs('EPSG:26916')

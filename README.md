@@ -10,27 +10,28 @@ How to run
 4. Type Ctrl + C to kill the dash output
 5. Run deactivate to exit out of virtual environment
 
-Front End
+# Front End
 We're using Dash to create a map of Chicago with its neighborhoods and have toggles for the data points we're analyzing - libraries, pharmacies, murals and Starbucks. The map also displays demographic info (get exact details). An exmaple search could be filtering neighorhoods by presence of Starbucks and seeing the 
 Shannon Index pop up over each neighborhood on the map. 
 
-Backend
+# Backend
 Our main data source is the Chicago Data Portal from where we are acessing data on libraries, pharmacies and murals via an API. We're also collecting data on Starbucks from ______ and census and demographic data from _____. After cleaning up the data from these sources into dataframes, we input them to dash which creates the map. 
 
-Documentation file
-
-Files names and description
+# Files names and description
 README.md: this file
 install.sh: shell script for creating a virtual environment and installing libraries
 app.py: the main file that imports data from the opther files and runs the dash output
 data: data directory
 requirements.txt: text file with all required libraries to run this project 
-# ADD PROJ FEEDBACK FILES? 
+
+
+ADD PROJ FEEDBACK FILES? 
 
 Population and racial data comes from: https://datahub.cmap.illinois.gov/dataset/community-data-snapshots-raw-data
 (2020 Census Supplement: Chicago Community Area csv)
 Still need to add documentation file from the website
 Income source: https://data.cityofchicago.org/Health-Human-Services/Per-Capita-Income/r6ad-wvtk
+
 
 
 API Key Information

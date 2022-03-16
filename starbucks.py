@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import json
-from map_util import convert_to_gdf
+import map_util as mu
 
 API = "BcNrdvBLg1ZFWdTWKfTBxmu48ehAXPGM"
 
@@ -39,7 +39,7 @@ def starbucks_df():
     '''
     cafe_dicts = go()
     sbucks = pd.DataFrame(cafe_dicts)
-    sbucks = convert_to_gdf(sbucks)
+    sbucks = mu.convert_to_gdf(sbucks)
     return sbucks
 
 def get_long_lat(zips):

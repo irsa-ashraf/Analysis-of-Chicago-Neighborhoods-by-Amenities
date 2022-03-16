@@ -82,7 +82,7 @@ def clean_libraries(dpc_class):
     split_location = pd.concat(split_location_col, axis=1).drop(['location', "human_address"], axis=1)
    
     # change column name
-    split_location = split_location.rename(columns = {"name_": "name"})
+    split_location = split_location.rename(columns = {"name_": "name", "latitude": "lat", "longitude": "lon"})
     split_location["type"] = "library"
     
     return split_location
@@ -118,7 +118,7 @@ def clean_pharmacies(dpc_class):
     pharms_clean.loc[mask3, column] = "permanently closed"
 
     # change column name
-    pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "name"})
+    pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "name", "latitude": "lat", "longitude": "lon"})
     pharmacy_data["type"] = "pharmacy"
 
     pharmacy_data.dropna(inplace = True)
@@ -133,7 +133,7 @@ def clean_murals(dpc_class):
     murals_df = dpc_class.get_murals()
 
     murals_df = murals_df[["artwork_title", "street_address", "latitude", "longitude"]]
-    murals_df.rename(columns = {'artwork_title':'name', "street_address":'address'}, inplace = True)
+    murals_df.rename(columns = {"artwork_title":"name", "street_address":"address", "latitude": "lat", "longitude": "lon"}, inplace = True)
     murals_df.dropna(inplace = True)
 
     return murals_df

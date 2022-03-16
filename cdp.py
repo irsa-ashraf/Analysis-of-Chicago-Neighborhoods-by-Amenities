@@ -8,6 +8,7 @@ from sodapy import Socrata
 
 import json
 import pandas as pd
+import starbucks
 
 API_KEY = "9Qto0x2IrJoK0BwbM4NSKwpkr"
 
@@ -156,6 +157,19 @@ def append_pandas():
 
 
     return (library_data, pharmacy_data, murals_data)
+
+def get_data_dicts():
+
+    dict_lst = []
+    lib, pharm, mur = append_pandas()
+    
+    lib_dict = lib.to_dict('records')
+    pharm_dict = pharm.to_dict('records')
+    mur_dict = mur.to_dict('records')
+    
+    starbucks_dict = starbucks.go()
+
+    return lib_dict, pharm_dict, mur_dict, starbucks_dict
 
 
 

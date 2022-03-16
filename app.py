@@ -1,7 +1,13 @@
-from dash import Dash, html
 import dash_leaflet as dl
 import dash_leaflet.express as dlx
+from dash import Dash, html
+from dash_extensions.javascript import assign
 import starbucks
+import cdp_new as cdp
+
+# returns libraries, pharmacies, murals
+#chicago_dicts = cdp.get_data_dicts()
+#geojson_dicts = []
 
 #cafe_dicts = starbucks.go()
 cafe_dicts = [{'name': ' West Monroe Street, Loop',
@@ -387,17 +393,60 @@ cafe_dicts = [{'name': ' West Monroe Street, Loop',
                 'lat': '41.9200282',
                 'lon': '-87.6369267'}]
 #starbucks_locs = dlx.dicts_to_geojson(cafe_dicts)
-app = Dash()
-app.layout = html.Div([
-    dl.Map([
-        dl.TileLayer(),
-        dl.GeoJSON(data=dlx.dicts_to_geojson(cafe_dicts), cluster=True),
-        dl.GeoJSON(url='assets/leaflet_50k.pbf', format="geobuf", cluster=True, id="sc", zoomToBoundsOnClick=True,
-                   superClusterOptions={"radius": 100}),
-    ], center=(41.8781, -87.5298), zoom=10, style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}),
-])
 
+for cafe in cafe_dicts:
+    cafe["tooltip"] = cafe['name']
+    cafe['color'] = 'green'
+
+'''
+for library in chicago_dicts[0]:
+    library['tooltip'] = library['type']
+    library['color'] = 'blue'
+
+for pharmacy in chicago_dicts[1]:
+    pharmacy['tooltip'] = pharmacy['name']
+    pharmacy['color'] = 'red'
+
+for mural in chicago_dicts[2]:
+    mural['tooltip'] = mural['name']
+    mural['color'] = 'violet'
+'''
+
+#geojson_dicts.append(cafe_dicts)
+#geojson_dicts.append(chicago_dicts[0])
+#geojson_dicts.append(chicago_dicts[1])
+#geojson_dicts.append(chicago_dicts[2])
+
+
+# CREDIT THE GITHUB USER WITH ICONS OR SET UP THE REPO WITH OUR ICONS
+
+geojson = dlx.dicts_to_geojson(cafe_dicts)
+# Create javascript function that draws a marker with a custom icon, in this case a flag hosted by flagcdn.
+draw_flag = assign("""function(feature, latlng){
+const flag = L.icon({iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${feature.properties.color}.png`, iconSize: [20, 24]});
+return L.marker(latlng, {icon: flag});
+}""")
+
+# Create example app.
+app = Dash()
+'''
+app.layout = html.Div([
+    dl.Map(children=[
+        dl.TileLayer(), dl.GeoJSON(data=geojson, options=dict(pointToLayer=draw_flag), zoomToBounds=True)
+    ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
+])
+'''
+app.layout = html.Div([
+    dl.Map(children=[
+        dl.TileLayer(),
+        dl.GeoJSON(data=geojson,
+        cluster=True,
+        options=dict(pointToLayer=draw_flag),
+        zoomToBounds=True)
+    ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
+])
+        #dl.GeoJSON(url='assets/leaflet_50k.pbf', format="geobuf", cluster=True, id="sc", zoomToBoundsOnClick=True,
+        #    superClusterOptions={"radius": 100})]
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
-
+    app.run_server()

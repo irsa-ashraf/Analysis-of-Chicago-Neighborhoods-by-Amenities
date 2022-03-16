@@ -9,10 +9,6 @@ from sodapy import Socrata
 import json
 import pandas as pd
 
-from library import Library
-from pharmacy import Pharmacy
-from murals import Mural
-
 API_KEY = "9Qto0x2IrJoK0BwbM4NSKwpkr"
 
 class DataPortalCollector: 

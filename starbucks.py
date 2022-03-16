@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import json
+from map_util import convert_to_gdf
 
 API = "BcNrdvBLg1ZFWdTWKfTBxmu48ehAXPGM"
 
@@ -25,9 +26,20 @@ def go():
             '60699', '60684', '60685', '60690', '60691', '60693', '60696', '60701']
 
     cafe_dicts = get_long_lat(zips)
-    #cafe_df = pd.DataFrame(cafes, columns=["tooltip", "lat", "lon", "color"])
     return cafe_dicts
 
+def starbucks_df():
+    '''
+    Convert list of dictionaries of starbucks to a geopandas dataframe.
+
+    Inputs: None
+    Returns:
+        geopandas dataframe
+    '''
+    cafe_dicts = go()
+    sbucks = pd.DataFrame(cafe_dicts)
+    sbucks = convert_to_gdf(sbucks)
+    return sbucks
 
 def get_long_lat(zips):
     '''

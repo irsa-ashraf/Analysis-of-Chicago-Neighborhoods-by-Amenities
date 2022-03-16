@@ -10,6 +10,14 @@ from demographics import import_income, import_demographics
 import cdp
 
 def geo_df():
+    '''
+    Get amenity datasets and convert them to geopandas dataframe.
+
+    Inputs:
+        None
+    Returns:
+        list of geopandas dataframe
+    '''
     pd_dfs = cdp.append_pandas()
     rv_lst = []
 
@@ -20,12 +28,31 @@ def geo_df():
     return rv_lst
 
 def convert_to_gdf(df):
+    '''
+    Convert pd datafarme to geopandas dataframe. Set CRS for new
+    pd datafarme.
+
+    Inputs:
+        df: pd dataframe
+    Return:
+        geopandas dataframe
+    '''
     gdf = gpd.GeoDataFrame(df,
                 geometry=gpd.points_from_xy(df['lat'], df['lon']))
     gdf = gdf.set_crs('EPSG:26916')
     return gdf
 
 def distance_series(df, point):
+    '''
+    Calculate the distance between the provided point and each amenity
+    in the dataset.
+
+    Inputs:
+        point: list of geo-coordinates i.e., [latitude, longtiude]
+        df: geopandas dataframe
+    Returns:
+        pd series
+    '''
     lat, long = point
     dist_series = df.apply(lambda x: distance.distance(
                         (x.lat, x.lon),
@@ -33,6 +60,20 @@ def distance_series(df, point):
     return dist_series
 
 def within_distance(point, library, pharmacy, starbucks, murals, walk_dist = 1):
+    '''
+    Find amenities that are within the specified distance from
+    the provided point.
+
+    Inputs:
+        point: list of geo-coordinates i.e., [latitude, longtiude]
+        library: geopandas dataframe
+        pharmacy: geopandas dataframe
+        starbucks: geopandas dataframe
+        murals: geopandas dataframe
+        walking dist (float or int): distance to restrict search
+    Returns:
+        a tuple of geopandas series
+    '''
     lib_dist = distance_series(library, point)
     pharm_dist = distance_series(pharmacy, point)
     sbucks_dist = distance_series(starbucks, point)
@@ -46,8 +87,22 @@ def within_distance(point, library, pharmacy, starbucks, murals, walk_dist = 1):
     return lib_dist, pharm_dist, sbucks_dist, murals_dist
 
 def compute_shannon_index(pt, lib, pharm, murals, sbucks):
+    '''
+    Compute shannon index, which is a measure of the proportion
+    of amenities from each category available within a distance.
+
+    Inputs:
+        point: list of geo-coordinates i.e., [latitude, longtiude]
+        library: geopandas dataframe
+        pharmacy: geopandas dataframe
+        starbucks: geopandas dataframe
+        murals: geopandas dataframe
+        walking dist (float or int): distance to restrict search
+    Returns:
+        shannon index (float)
+    '''
+
     total = lib.shape[0] + pharm.shape[0] + sbucks.shape[0] + murals.shape[0]
-    print(total)
 
     within_dist = within_distance(pt, lib, pharm, sbucks, murals)
     
@@ -59,10 +114,18 @@ def compute_shannon_index(pt, lib, pharm, murals, sbucks):
             continue
         score += -(prop * math.log(prop))
     if score == 0:
-        return 'no amenities in the area'
+        return None
     return score
 
 def boundary_data():
+    '''
+    Merge geopandas dataframe containing community area shape info
+    with a dataframe that has socio-demographics information
+
+    Inptus: none
+    Returns:
+        merged geopandas dataframe
+    '''
     geojson_file = 'data/Boundaries - Community Areas (current).geojson'
     comm_boundaries = gpd.read_file(geojson_file)
     def cap(st):
@@ -72,6 +135,9 @@ def boundary_data():
     return comm_boundaries
 
 def choropleth_data():
+    '''
+    Create dataframes to be used to create choropleth.
+    '''
     comm_boundaries = boundary_data()
     income = import_income()
     income = income.loc[:,['neighbor', 'income_per_1000']]

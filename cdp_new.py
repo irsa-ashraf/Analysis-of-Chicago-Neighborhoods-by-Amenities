@@ -64,6 +64,9 @@ class DataPortalCollector:
         '''
         
         results = self.client.get("we8h-apcf")
+        print(results)
+        print('')
+        return 
         murals_df = pd.DataFrame.from_dict(results)
         
         return murals_df

@@ -136,9 +136,9 @@ def clean_murals(dpc_class):
     murals_df.rename(columns = {"artwork_title":"tooltip", "street_address":"address", "latitude": "lat", "longitude": "lon"}, inplace = True)
     murals_df["type"] = "mural"
     murals_df["color"] = "violet"
-    print(murals_df['tooltip'])
-    murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
     murals_df.dropna(inplace = True)
+    murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
+    
     
     return murals_df
 

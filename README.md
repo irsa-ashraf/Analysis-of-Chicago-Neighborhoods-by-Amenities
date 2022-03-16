@@ -19,7 +19,6 @@ Our main data source is the Chicago Data Portal from where we accessed data on l
 - README.md: this file
 - install.sh: shell script for creating a virtual environment and installing libraries
 - app.py: the main file that imports data from the other files and runs the dash output
-- run.sh: shell script for running app.py and loading the browser. (CAUTION: only use in linux environment)
 - cdp.py: python file that gets data from Chicago Open Data Portal on Libraries, Pharmacies and Murals
 - demographics.py: python file that imports demographic and socioeconomic data from csv
 - map_util.py: helper functions for rendering our community shape files for the choropleth

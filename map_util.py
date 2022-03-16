@@ -136,7 +136,12 @@ def boundary_data():
 
 def choropleth_data():
     '''
-    Create dataframes to be used to create choropleth.
+    Create dataframes to be used to create choropleth by merging
+    geopandas dataframe of community area shapefiles with
+    income data and demographics data
+
+    Returns:
+        tuple of two geopandas dataframe
     '''
     comm_boundaries = boundary_data()
     income = import_income()
@@ -150,6 +155,16 @@ def choropleth_data():
     return income_boundaries, demo_boundaries, colors
 
 def colors_for_choropleth(income, demo):
+    '''
+    Define color settings for choropleths for income data and demographics
+    data.
+
+    Input:
+        income: geopandas dataframe
+        demo: geopandas dataframe
+    Returns:
+        list of lists where each sublist is a setting for the choropleth
+    '''
     rv = []
     rv.append(list(income['income_per_1000'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1])))
     rv.append(['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C'])

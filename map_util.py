@@ -8,9 +8,6 @@ import math
 
 from geopy import distance
 from cdp import append_pandas
-from starbucks import go
-
-
 
 def geo_df():
     pd_dfs = append_pandas()

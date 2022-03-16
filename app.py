@@ -45,25 +45,14 @@ style_handle = assign("""function(feature, context){
     return style;
 }""")
 # Create geojson.
-geojson = dl.GeoJSON(data = json.loads(choro_boundaries.to_json()),  # url to geojson file
+geojson2 = dl.GeoJSON(data = json.loads(choro_boundaries.to_json()),  # url to geojson file
                      options=dict(style=style_handle),  # how to style each polygon
                      zoomToBounds=True,  # when true, zooms to bounds when data changes (e.g. on load)
                      zoomToBoundsOnClick=True,  # when true, zooms to bounds of feature (e.g. polygon) on click
                      hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')),  # style applied on hover
                      hideout=dict(colorscale=colorscale, classes=classes, style=style, colorProp="income_per_1000"),
                      id="geojson")
-# Create info control.
-#info = html.Div(children=get_info(), id="info", className="info",
-#                style={"position": "absolute", "top": "10px", "right": "10px", "z-index": "1000"})
-# Create app.
-app = Dash(prevent_initial_callbacks=True)
-app.layout = html.Div([dl.Map(children=[dl.TileLayer(), geojson, colorbar])],
-                      style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
 
-
-@app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
-def info_hover(feature):
-    return get_info(feature)
 
 
 ####
@@ -500,31 +489,40 @@ return L.marker(latlng, {icon: point});
 }""")
 
 # Create app.
-app = Dash()
+
 
 
 # import statement for dropdown
 from dash import Dash, html, dcc
-
-#app.layout = html.Div([dl.Map(children=[dl.TileLayer(), geojson, colorbar])],
-#                      style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
-
-
+'''
+app = Dash(prevent_initial_callbacks=True)
+app.layout = html.Div(dl.Map([
+        dl.LayersControl([
+            dl.Overlay(
+                dl.LayerGroup([geojson]), name='choropleth', checked=True)
+        ]),
+        # add another layers control here
+        dl.TileLayer(), colorbar
+    ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
+)
+'''
+app = Dash()
 app.layout = html.Div(
     dl.Map(
         [
             dl.LayersControl(
                 [
-                    dl.BaseLayer(dl.Map(children=[
-                        dl.TileLayer(),
-                        dl.GeoJSON(data=geojson,
-                        cluster=True,
-                        options=dict(pointToLayer=draw_point),
-                        zoomToBounds=True)])
+                    dl.Overlay(
+                        dl.LayerGroup([geojson2]), name='choropleth', checked=True),
+                    dl.Overlay(
+                        dl.LayerGroup(children=[
+                            dl.TileLayer(),
+                            dl.GeoJSON(data=geojson,
+                            cluster=True,
+                            options=dict(pointToLayer=draw_point),
+                            zoomToBounds=True)]), name='starbucks', checked=True)],
                     ),
                 ],
-            ),
-        ],
         zoom=10,
         center=(41.8781, -87.5298),
     ),
@@ -532,6 +530,11 @@ app.layout = html.Div(
         'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block",
     }, id='map'
 )
+
+@app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
+def info_hover(feature):
+    return get_info(feature)
+
 
 if __name__ == '__main__':
     app.run_server()

@@ -8,12 +8,16 @@ import starbucks
 import geopandas as gpd
 import pandas as pd
 import json
+import map_util as mu
+
 
 from demographics import import_income, import_demographics
-
-# import settings
-
 from dash.dependencies import Output, Input
+
+lib, pharm, murals = mu.geo_df()
+lib.rename(columns ={'name':'tooltip'}, inplace=True)
+print(lib.columns)
+
 
 def cap(st):
     return st.title()
@@ -55,20 +59,8 @@ geojson2 = dl.GeoJSON(data = json.loads(choro_boundaries.to_json()),  # url to g
 
 
 
-####
-
-import dash_leaflet as dl
-import dash_leaflet.express as dlx
-from dash import Dash, html
-from dash_extensions.javascript import assign
-import starbucks
-import cdp_new as cdp
-
-# returns libraries, pharmacies, murals
-#chicago_dicts = cdp.get_data_dicts()
-#geojson_dicts = []
-
 #cafe_dicts = starbucks.go()
+
 cafe_dicts = [{'name': ' West Monroe Street, Loop',
                 'lat': '41.8804904',
                 'lon': '-87.6375454'},
@@ -454,28 +446,8 @@ cafe_dicts = [{'name': ' West Monroe Street, Loop',
 
 
 for cafe in cafe_dicts:
-    cafe["tooltip"] = cafe['name']
+    cafe["tooltip"] = cafe['name'] + ", (Starbucks)"
     cafe['color'] = 'green'
-
-'''
-for library in chicago_dicts[0]:
-    library['tooltip'] = library['type']
-    library['color'] = 'blue'
-
-for pharmacy in chicago_dicts[1]:
-    pharmacy['tooltip'] = pharmacy['name']
-    pharmacy['color'] = 'red'
-
-for mural in chicago_dicts[2]:
-    mural['tooltip'] = mural['name']
-    mural['color'] = 'violet'
-'''
-
-#geojson_dicts.append(cafe_dicts)
-#geojson_dicts.append(chicago_dicts[0])
-#geojson_dicts.append(chicago_dicts[1])
-#geojson_dicts.append(chicago_dicts[2])
-
 
 # CREDIT THE GITHUB USER WITH ICONS OR SET UP THE REPO WITH OUR ICONS
 
@@ -490,7 +462,7 @@ return L.marker(latlng, {icon: point});
 
 # Create app.
 
-
+# I think we can keep them initially as pd dataframe so that we can add “tooltips” easily, and then in our GeoJSON step, we can specify data = json.loads(df.to_json())
 
 # import statement for dropdown
 from dash import Dash, html, dcc
@@ -520,8 +492,8 @@ app.layout = html.Div(
                             dl.GeoJSON(data=geojson,
                             cluster=True,
                             options=dict(pointToLayer=draw_point),
-                            zoomToBounds=True)]), name='starbucks', checked=True)],
-                    ),
+                            zoomToBounds=True)]), name='starbucks', checked=True)]),
+                    dl.TileLayer(), colorbar
                 ],
         zoom=10,
         center=(41.8781, -87.5298),
@@ -530,6 +502,7 @@ app.layout = html.Div(
         'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block",
     }, id='map'
 )
+
 
 @app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
 def info_hover(feature):

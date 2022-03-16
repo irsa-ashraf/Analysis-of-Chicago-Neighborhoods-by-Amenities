@@ -67,7 +67,8 @@ class DataPortalCollector:
 
     def get_murals(self):
         '''
-        Pull the data on murals located in Chicago from Chicago Open Data Portal
+        Pull the data on murals located in Chicago
+            from Chicago Open Data Portal
             and save as a pandas dataframe
         Inputs:
             - none
@@ -99,14 +100,19 @@ def clean_libraries(dpc_class):
     filter_data = libs[["name_", "address", "location"]]
 
     # split location column up
-    split_location_col = [filter_data, pd.DataFrame(filter_data["location"].tolist()).iloc[:, :3]]
-    split_location = pd.concat(split_location_col, axis=1).drop(['location', "human_address"], axis=1)
+    split_location_col = \
+        [filter_data, pd.DataFrame(filter_data["location"].tolist()).iloc[:, :3]]
+    split_location = \
+        pd.concat(split_location_col, axis=1).drop(['location', "human_address"], axis=1)
 
     # change column name
-    split_location = split_location.rename(columns = {"name_": "tooltip", "latitude": "lat", "longitude": "lon"})
+    split_location = \
+        split_location.rename(columns \
+        = {"name_": "tooltip", "latitude": "lat", "longitude": "lon"})
     split_location["type"] = "library"
     split_location["color"] = "blue"
-    split_location["tooltip"] = split_location.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
+    split_location["tooltip"] = \
+        split_location.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
 
     return split_location
 
@@ -128,13 +134,17 @@ def clean_pharmacies(dpc_class):
     filter_data = pharms[["pharmacy_name", "address", "geocoded_column", "status"]]
 
     # split location column up into lat/lon
-    split_location = pd.concat([filter_data, filter_data["geocoded_column"].apply(pd.Series)], axis=1)
+    split_location = pd.concat([filter_data, \
+        filter_data["geocoded_column"].apply(pd.Series)], axis=1)
     split_location = split_location[["pharmacy_name", "address", "status", "coordinates"]]
-    split_location_list = pd.concat([split_location, split_location["coordinates"].apply(pd.Series)], axis=1)
+    split_location_list = pd.concat([split_location, \
+        split_location["coordinates"].apply(pd.Series)], axis=1)
 
     # fix coordinate column names
-    split_location_list = split_location_list.rename(columns = {0: "longitude", 1: "latitude"})
-    condensed = split_location_list[["pharmacy_name", "address", "latitude", "longitude", "status"]]
+    split_location_list = \
+        split_location_list.rename(columns = {0: "longitude", 1: "latitude"})
+    condensed = \
+        split_location_list[["pharmacy_name", "address", "latitude", "longitude", "status"]]
 
     # clean status column
     pharms_clean = condensed.copy()
@@ -147,10 +157,12 @@ def clean_pharmacies(dpc_class):
     pharms_clean.loc[mask3, column] = "permanently closed"
 
     # change column name
-    pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "tooltip", "latitude": "lat", "longitude": "lon"})
+    pharmacy_data = pharms_clean.rename(columns = \
+        {"pharmacy_name": "tooltip", "latitude": "lat", "longitude": "lon"})
     pharmacy_data["type"] = "pharmacy"
     pharmacy_data["color"] = "red"
-    pharmacy_data["tooltip"] = pharmacy_data.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
+    pharmacy_data["tooltip"] = \
+        pharmacy_data.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
 
     pharmacy_data.dropna(inplace = True)
 
@@ -172,11 +184,15 @@ def clean_murals(dpc_class):
     murals_df = dpc_class.get_murals()
 
     murals_df = murals_df[["artwork_title", "street_address", "latitude", "longitude"]]
-    murals_df.rename(columns = {"artwork_title":"tooltip", "street_address":"address", "latitude": "lat", "longitude": "lon"}, inplace = True)
+    murals_df.rename(columns = \
+        {"artwork_title":"tooltip", "street_address":"address", \
+        "latitude": "lat", "longitude": "lon"},\
+         inplace = True)
     murals_df["type"] = "mural"
     murals_df["color"] = "violet"
     murals_df.dropna(inplace = True)
-    murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
+    murals_df["tooltip"] = \
+        murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
 
     return murals_df
 

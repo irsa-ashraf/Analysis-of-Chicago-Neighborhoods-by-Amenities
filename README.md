@@ -16,14 +16,14 @@ We used Dash to create a map of Chicago and have toggles for the data points we'
 Our main data source is the Chicago Data Portal from where we accessed data on libraries, pharmacies and murals via an API. We collected data on Starbucks from Mapquest via an API. WE got the Domographic and Socioeconomic data via CSV from the the Chicago Metropolitan Agency and Chicago Open Data Portal and Shapefile data from TK via TK.   After cleaning up the data from these sources into dataframes, we input them to dash which creates the map. 
 
 ### Files names and description
-README.md: this file
-install.sh: shell script for creating a virtual environment and installing libraries
-app.py: the main file that imports data from the other files and runs the dash output
-cdp.py: python file that gets data from Chicago Open Data Portal on Libraries, Pharmacies and Murals
-demographics.py: python file that imports demographic and socioeconomic data from csv
-map_util.py: helper functions for rendering our community shape files for the choropleth
-starbucks.py: python file that gets data on Starbucks 
-requirements.txt: text file with all required libraries to run this project 
+- README.md: this file
+- install.sh: shell script for creating a virtual environment and installing libraries
+- app.py: the main file that imports data from the other files and runs the dash output
+- cdp.py: python file that gets data from Chicago Open Data Portal on Libraries, Pharmacies and Murals
+- demographics.py: python file that imports demographic and socioeconomic data from csv
+- map_util.py: helper functions for rendering our community shape files for the choropleth
+- starbucks.py: python file that gets data on Starbucks 
+- requirements.txt: text file with all required libraries to run this project 
 
 #### Sources 
 1. Shannon Index source:

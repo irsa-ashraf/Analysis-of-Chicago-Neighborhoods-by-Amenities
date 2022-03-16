@@ -102,10 +102,10 @@ def clean_pharmacies(dpc_class):
     split_location_list = pd.concat([split_location, split_location["coordinates"].apply(pd.Series)], axis=1)
     
     # fix coordinate column names
-    split_location_list = split_location_list.rename(columns = {0: "longitude", 1: "latitude"})
+    split_location_list = split_location_list.rename(columns = {0: "lon", 1: "lat"})
 
     # only columns we want
-    condensed = split_location_list[["pharmacy_name", "address", "latitude", "longitude", "status"]]
+    condensed = split_location_list[["pharmacy_name", "address", "lat", "lon", "status"]]
 
     # clean status column
     pharms_clean = condensed.copy()
@@ -132,7 +132,7 @@ def clean_murals(dpc_class):
 
     murals_df = dpc_class.get_murals()
 
-    murals_df = murals_df[["artwork_title", "street_address", "latitude", "longitude"]]
+    murals_df = murals_df[["artwork_title", "street_address", "lat", "lon"]]
     murals_df.rename(columns = {'artwork_title':'name', "street_address":'address'}, inplace = True)
     murals_df.dropna(inplace = True)
 

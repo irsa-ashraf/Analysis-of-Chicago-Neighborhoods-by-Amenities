@@ -78,8 +78,10 @@ def clean_libraries(dpc_class):
     split_location = pd.concat(split_location_col, axis=1).drop(['location', "human_address"], axis=1)
    
     # change column name
-    split_location = split_location.rename(columns = {"name_": "name", "latitude": "lat", "longitude": "lon"})
+    split_location = split_location.rename(columns = {"name_": "tooltip", "latitude": "lat", "longitude": "lon"})
     split_location["type"] = "library"
+    split_location["color"] = "blue"
+    split_location["tooltip"] = split_location.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
     
     return split_location
 
@@ -114,8 +116,10 @@ def clean_pharmacies(dpc_class):
     pharms_clean.loc[mask3, column] = "permanently closed"
 
     # change column name
-    pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "name", "latitude": "lat", "longitude": "lon"})
+    pharmacy_data = pharms_clean.rename(columns = {"pharmacy_name": "tooltip", "latitude": "lat", "longitude": "lon"})
     pharmacy_data["type"] = "pharmacy"
+    pharmacy_data["color"] = "red"
+    pharmacy_data["tooltip"] = pharmacy_data.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
 
     pharmacy_data.dropna(inplace = True)
 
@@ -129,9 +133,13 @@ def clean_murals(dpc_class):
     murals_df = dpc_class.get_murals()
 
     murals_df = murals_df[["artwork_title", "street_address", "latitude", "longitude"]]
-    murals_df.rename(columns = {"artwork_title":"name", "street_address":"address", "latitude": "lat", "longitude": "lon"}, inplace = True)
+    murals_df.rename(columns = {"artwork_title":"tooltip", "street_address":"address", "latitude": "lat", "longitude": "lon"}, inplace = True)
+    murals_df["type"] = "mural"
+    murals_df["color"] = "violet"
+    print(murals_df['tooltip'])
+    murals_df["tooltip"] = murals_df.apply(lambda x: x.tooltip + ' ({})'.format(x.type), axis= 1)
     murals_df.dropna(inplace = True)
-
+    
     return murals_df
 
 

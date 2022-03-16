@@ -3,9 +3,8 @@ This project creates a map that shows the Shannon Index (see bottom) by neighbor
 
 ### How to run
 1. Run source install.sh to create a virtual environment and install packages
-2. If you are in a linux environment, you can run source run.sh in the command line. Otherwise:
-3. Run python app.py in the command line
-4. Click "Open in Browser" OR copy and paste the link to your preferred web browser to see the map. Please ignore the warning message if you see it
+2. Run python app.py in the command line
+3. Click "Open in Browser" OR copy and paste the link to your preferred web browser to see the map. Please ignore the warning message if you see it
 "WARNING: This is a development server. Do not use it in a production deployment." 
 4. Type Ctrl + C to kill the dash output
 5. Run deactivate to exit out of virtual environment

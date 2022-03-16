@@ -3,6 +3,7 @@ import folium
 from folium import plugins
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 import map_util
 import starbucks
@@ -50,3 +51,4 @@ def cluster_points(df, key, map):
 if __name__ == '__main__':
     geojson_file = 'data/Boundaries - Neighborhoods.geojson'
     make_map_and_plot(geojson_file)
+    os.system('open ./map.html')

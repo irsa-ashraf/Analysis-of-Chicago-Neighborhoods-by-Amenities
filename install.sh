@@ -8,6 +8,7 @@ source env/bin/activate
 
 pip install -r requirements.txt  
 
+echo -e ""
 echo -e "Install is complete! Ready to run app.py!"
 
 

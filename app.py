@@ -80,6 +80,14 @@ choro_demo = dl.GeoJSON(data = json.loads(demo_choro.to_json()),  # url to geojs
 
 # Create info panel function
 def get_info(si=None):
+    '''
+    Displays Shannon index score for a clicked location on the map.
+    Inputs:
+        si: float
+    Returns:
+        html objects
+    '''
+
     header = [html.H4("Amenities in Chicago Community Areas Within 15 Minutes Walking Distance")]
     if not si:
         return header + [html.P("Click anywhere in Chicago to calculate "\
@@ -158,6 +166,14 @@ app.layout = html.Div(children=[
 # Add mouse click feature
 @app.callback(Output("info", "children"), [Input("map", "click_lat_lng")])
 def info_click(click_lat_lng):
+    '''
+    Computes Shannon index score and updates the display box with the Shannon score.
+    Inputs:
+        click_lat_lng: list of floats
+    Returns:
+        updates to the display box
+    '''
+
     si = mu.compute_shannon_index(click_lat_lng, lib, pharm, murals, sbucks)
     return get_info(si)
 

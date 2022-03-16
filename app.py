@@ -16,7 +16,8 @@ from demographics import import_income, import_demographics
 from dash.dependencies import Output, Input
 
 
-chi_dicts = cdp.get_data_dicts()
+#chi_dicts = cdp.get_data_dicts()
+lib_dict, pharm_dict, mur_dict, cafe_dicts = cdp.get_data_dicts()
 
 def cap(st):
     return st.title()
@@ -60,7 +61,10 @@ geojson2 = dl.GeoJSON(data = json.loads(choro_boundaries.to_json()),  # url to g
 # CREDIT THE GITHUB USER WITH ICONS OR SET UP THE REPO WITH OUR ICONS
 
 
-geojson = dlx.dicts_to_geojson(chi_dicts)
+geojson_starb = dlx.dicts_to_geojson(cafe_dicts)
+geojson_libs = dlx.dicts_to_geojson(lib_dict)
+geojson_pharms = dlx.dicts_to_geojson(pharm_dict)
+geojson_murals = dlx.dicts_to_geojson(mur_dict)
 
 # generate icon
 draw_point = assign("""function(feature, latlng){
@@ -75,7 +79,8 @@ from dash import Dash, html, dcc
 
 
 app = Dash()
-app.layout = html.Div(
+app.layout = html.Div(children=[
+    html.H1(children="Chicago Amenities"),
     dl.Map(
         [
             dl.LayersControl(
@@ -85,17 +90,38 @@ app.layout = html.Div(
                     dl.Overlay(
                         dl.LayerGroup(children=[
                             dl.TileLayer(),
-                            dl.GeoJSON(data=geojson,
+                            dl.GeoJSON(data=geojson_starb,
                             cluster=True,
                             options=dict(pointToLayer=draw_point),
-                            zoomToBounds=True)]), name='amenities', checked=True)]),
+                            zoomToBounds=True)]), name='starbucks', checked=True),
+                    dl.Overlay(
+                        dl.LayerGroup(children=[
+                            dl.TileLayer(),
+                            dl.GeoJSON(data=geojson_pharms,
+                            cluster=True,
+                            options=dict(pointToLayer=draw_point),
+                            zoomToBounds=True)]), name='pharmacies', checked=True),
+                    dl.Overlay(
+                        dl.LayerGroup(children=[
+                            dl.TileLayer(),
+                            dl.GeoJSON(data=geojson_murals,
+                            cluster=True,
+                            options=dict(pointToLayer=draw_point),
+                            zoomToBounds=True)]), name='murals', checked=True),
+                    dl.Overlay(
+                        dl.LayerGroup(children=[
+                            dl.TileLayer(),
+                            dl.GeoJSON(data=geojson_libs,
+                            cluster=True,
+                            options=dict(pointToLayer=draw_point),
+                            zoomToBounds=True)]), name='libraries', checked=True)]),
                     dl.TileLayer(), colorbar
                 ],
         zoom=10,
         center=(41.8781, -87.5298),
-    ),
+    )],
     style={
-        'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block",
+        'width': '98%', 'height': '95vh', 'margin': "auto", "display": "block",
     }, id='map'
 )
 

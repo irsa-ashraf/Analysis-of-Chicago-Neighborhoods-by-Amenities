@@ -58,9 +58,15 @@ geojson = dl.GeoJSON(data = json.loads(choro_boundaries.to_json()),  # url to ge
 #                style={"position": "absolute", "top": "10px", "right": "10px", "z-index": "1000"})
 # Create app.
 app = Dash(prevent_initial_callbacks=True)
-app.layout = html.Div([dl.Map(children=[dl.TileLayer(), geojson, colorbar])],
-                      style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
-
+app.layout = html.Div(dl.Map([
+        dl.LayersControl([
+            dl.Overlay(
+                dl.LayerGroup([geojson]), name='choropleth', checked=True)
+        ]),
+        # add another layers control here
+        dl.TileLayer(), colorbar
+    ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
+)
 
 @app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
 def info_hover(feature):

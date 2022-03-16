@@ -1,21 +1,18 @@
+import sys
 from dash import Dash, html
 import dash_leaflet as dl
 import dash_leaflet.express as dlx
-from dash import Dash, html, Output, Input
 from dash_extensions.javascript import arrow_function, assign
-import geopandas as gpd
-import pandas as pd
 import json
 import cdp
-import sys
 import map_util as mu
 import starbucks
-
-from demographics import import_income, import_demographics
 from dash.dependencies import Output, Input
+
 
 # Get data to create amenity layers
 lib_dict, pharm_dict, mur_dict, cafe_dicts = cdp.get_data_dicts()
+
 
 # Create geojsons for amenities
 geojson_starb = dlx.dicts_to_geojson(cafe_dicts)
@@ -23,16 +20,20 @@ geojson_libs = dlx.dicts_to_geojson(lib_dict)
 geojson_pharms = dlx.dicts_to_geojson(pharm_dict)
 geojson_murals = dlx.dicts_to_geojson(mur_dict)
 
+
 # Get data to compute Shannon score
 lib, pharm, murals = mu.geo_df()
 sbucks = starbucks.starbucks_df()
 
+
 # Get choropleth data for income and demographics
 income_choro, demo_choro, colors = mu.choropleth_data()
+
 
 # Customize colors for income data
 bin_inc, colorscale_inc, bin_demo, colorscale_demo = colors
 style = dict(weight=2, opacity=1, color='white', dashArray='3', fillOpacity=0.7)
+
 
 # Create colorbars
 ctg_demo = ["{:.1f}+".format(cls, bin_demo[i + 1]) for i, cls in
@@ -45,6 +46,7 @@ ctg_inc = ["{:.1f}+".format(cls, bin_inc[i + 1]) for i, cls in enumerate(bin_inc
 colorbar_inc = dlx.categorical_colorbar(categories=ctg_inc, colorscale=colorscale_inc,
                                 className = "Per capita income in 1K$",
                                 width = 300, height = 30, position = "bottomleft")
+
 
 # Geojson rendering logic, must be JavaScript as it is executed in clientside.
 style_handle = assign("""function(feature, context){
@@ -80,13 +82,14 @@ choro_demo = dl.GeoJSON(data = json.loads(demo_choro.to_json()),  # url to geojs
 def get_info(si=None):
     header = [html.H4("Amenities in Chicago Community Areas Within 15 Minutes Walking Distance")]
     if not si:
-        return header + [html.P("Click anywhere in Chicago to calculate"\
-                        "the density and diversity of amenities within walking"\
+        return header + [html.P("Click anywhere in Chicago to calculate "\
+                        "the density and diversity of amenities within walking "\
                         "distance of the selected coordinates")]
     return header + [html.B("Shannon Index Score: {:.4f}".format(si)) , html.Br(),
                     "A score above 0.0273 indicates that "\
-                    "there is at least one amenity from each category, or several from few.",
-                    html.Sup("2")]
+                    "there is at least one amenity from each category, or several from few."
+                    ]
+
 
 # Create info control
 info = html.Div(children=get_info(), id="info", className="info",
@@ -141,18 +144,18 @@ app.layout = html.Div(children=[
                             cluster=True,
                             options=dict(pointToLayer=draw_point),
                             zoomToBounds=True)]), name='libraries', checked=True)]),
-                    dl.TileLayer(), colorbar_inc, colorbar_demo, info
+                dl.TileLayer(), colorbar_inc, colorbar_demo, info
                 ],
         zoom=10,
-        center=(41.8781, -87.5298),
+        center=(41.8781, -87.5298), id='map',
     )],
     style={
-        'width': '98%', 'height': '95vh', 'margin': "auto", "display": "block",
-    }, id='map'
+        'width': '98%', 'height': '60vh', 'margin': "auto", "display": "block",
+    }
 )
 
 
-# add mouse click feature
+# Add mouse click feature
 @app.callback(Output("info", "children"), [Input("map", "click_lat_lng")])
 def info_click(click_lat_lng):
     si = mu.compute_shannon_index(click_lat_lng, lib, pharm, murals, sbucks)

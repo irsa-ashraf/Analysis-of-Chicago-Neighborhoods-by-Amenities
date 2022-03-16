@@ -16,7 +16,7 @@ def go():
         '60701']
 
     cafe_dicts = get_long_lat(zips)
-    #cafe_df = pd.DataFrame(cafes, columns=["address", "latitude", "longitude"])
+    #cafe_df = pd.DataFrame(cafes, columns=["tooltip", "lat", "lon", "color"])
     return cafe_dicts
 
 
@@ -31,9 +31,10 @@ def get_long_lat(zips):
             for cafe in data_json:
                 if (cafe['lat'], cafe['lon']) not in seen:
                     one_cafe = {}
-                    one_cafe['name'] = format_location(cafe['display_name'])
+                    one_cafe['tooltip'] = format_location(cafe['display_name'])
                     one_cafe['lat'] = cafe['lat']
                     one_cafe['lon'] = cafe['lon']
+                    one_cafe['color'] = 'green'
                     cafe_dicts.append(one_cafe)
                     seen.add((cafe['lat'], cafe['lon']))
     return cafe_dicts
@@ -46,12 +47,12 @@ def gen_url(zipcode):
 def format_location(display_name):    
     split = display_name.split(',')
     if any(char.isdigit() for char in split[1]):
-        name = split[2]
+        name = split[2].strip()
         idx = 2
     else:
-        name = split[1]
+        name = split[1].strip()
         idx = 1
-    return (name + ',' + split[idx + 1])
+    return (name + ',' + split[idx + 1] + ', (Starbucks)')
 
 '''
 def get_long_lat(zips):

@@ -1,12 +1,12 @@
 import os
 import geopandas as gpd
-import folium
-from folium import plugins
 import matplotlib.pyplot as plt
 import pandas as pd
 import math
 
 from geopy import distance
+
+from demographics import import_income, import_demographics
 import cdp
 
 def geo_df():
@@ -62,19 +62,31 @@ def compute_shannon_index(pt, lib, pharm, murals, sbucks):
         return 'no amenities in the area'
     return score
 
-def prepare_chlorpleth(df, column, description):
-    bins = df[arg].quantile([0, 0.2, 0.4, 0.6, 0.8, 1])
-    folium.Choropleth(
-        geo_data=pdf,
-        data=demo,
-        columns=["GEOG", "BLACK"],
-        key_on="feature.properties.pri_neigh",
-        fill_color="YlGn",
-        fill_opacity=0.7,
-        line_opacity=0.5,
-        legend_name="% Black residents",
-        name='demographic info',
-        bins=demo_bins,
-        reset=True,
-    ).add_to(map)
-    pass
+def boundary_data():
+    geojson_file = 'data/Boundaries - Community Areas (current).geojson'
+    comm_boundaries = gpd.read_file(geojson_file)
+    def cap(st):
+        return st.title()
+    comm_boundaries['community'] = comm_boundaries.apply(lambda x: cap(x.community), axis = 1)
+    comm_boundaries = comm_boundaries.rename(columns = {"community": "neighbor"})
+    return comm_boundaries
+
+def choropleth_data():
+    comm_boundaries = boundary_data()
+    income = import_income()
+    income = income.loc[:,['neighbor', 'income_per_1000']]
+    demo = import_demographics()
+    colors = colors_for_choropleth(income, demo)
+    demo = demo.loc[:,['neighbor', 'share_BLACK']]
+    income_boundaries = pd.merge(comm_boundaries, income, on='neighbor', how='left')
+    demo_boundaries = pd.merge(comm_boundaries, demo, on='neighbor', how='left')
+
+    return income_boundaries, demo_boundaries, colors
+
+def colors_for_choropleth(income, demo):
+    rv = []
+    rv.append(list(income['income_per_1000'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1])))
+    rv.append(['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C'])
+    rv.append(list(demo['share_BLACK'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1])))
+    rv.append(['#FFD3DE', '#FFBFCF', '#FFACC1', '#FF98B2', '#FF85A3', '#FF7194'])
+    return rv

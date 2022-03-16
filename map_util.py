@@ -7,10 +7,10 @@ import pandas as pd
 import math
 
 from geopy import distance
-from cdp import append_pandas
+import cdp
 
 def geo_df():
-    pd_dfs = append_pandas()
+    pd_dfs = cdp.append_pandas()
     rv_lst = []
 
     for i, df in enumerate(pd_dfs):

@@ -10,8 +10,6 @@ import geopandas as gpd
 import pandas as pd
 import json
 
-from demographics import import_income, import_demographics
-
 import map_util as mu
 import starbucks
 
@@ -66,9 +64,24 @@ choro_demo = dl.GeoJSON(data = json.loads(demo_choro.to_json()),  # url to geojs
                      hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')),  # style applied on hover
                      hideout=dict(colorscale=colorscale_demo, classes=bin_demo, style=style, colorProp="share_BLACK"),
                      id="choro_demo")
+
+# create info panel function
+def get_info(si=None):
+    header = [html.H4("Amenities in Chicago Community Areas Within 15 Minutes Walking Distance")]
+    if not si:
+        return header + [html.P("Click anywhere in Chicago to calculate"\
+                        "the density and diversity of amenities within walking"\
+                        "distance of the selected coordinates")]
+    return header + [html.B("Shannon Index Score: {:.4f}".format(si)) , html.Br(),
+                    "A score above 0.0273 indicates that "\
+                    "there is at least one amenity from each category, or several from few.",
+                    html.Sup("2")]
+
 # Create info control.
-#info = html.Div(children=get_info(), id="info", className="info",
-#                style={"position": "absolute", "top": "10px", "right": "10px", "z-index": "1000"})
+info = html.Div(children=get_info(), id="info", className="info",
+                style={"position": "absolute", "top": "10px", "left": "10px", "z-index": "1000"})
+
+
 # Create app.
 app = Dash()
 app.layout = html.Div(dl.Map([
@@ -79,19 +92,15 @@ app.layout = html.Div(dl.Map([
                 dl.LayerGroup([choro_demo]), name='Share of Black residents', checked=True),                
         ]), 
         # add another layers control here
-        dl.TileLayer(), colorbar_inc, colorbar_demo
+        dl.TileLayer(), colorbar_inc, colorbar_demo, info # add info at the end
     ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
 )
 
-#@app.callback(Output("info", "children"), [Input("geojson", "hover_feature")])
-#def info_hover(feature):
-#    return get_info(feature)
-
-@app.callback(Output("layer", "children"), [Input("map", "click_lat_lng")])
-def map_click(click_lat_lng):
+# add mouse click feature
+@app.callback(Output("info", "children"), [Input("map", "click_lat_lng")])
+def info_click(click_lat_lng):
     si = mu.compute_shannon_index(click_lat_lng, lib, pharm, murals, sbucks)
-    print(si)
-    #return [dl.Marker(position=click_lat_lng, children=dl.Tooltip("({:.3f}, {:.3f})".format(*click_lat_lng)))]
+    return get_info(si)
 
 if __name__ == '__main__':
     app.run_server()

@@ -192,12 +192,13 @@ def append_pandas():
 
 def get_data_dicts():
     '''
-    Converts dataframes to dictionaries
+    Converts each dataframe to a list of dictionaries
 
     Inputs: (None)
 
     Returns:
-        
+        four lists of dictionaries, for our four dataframes 
+            (libraries, pharmacies, murals, Starbucks)
     '''
 
     lib, pharm, mur = append_pandas()

@@ -4,9 +4,9 @@ import dash_leaflet as dl
 import dash_leaflet.express as dlx
 from dash_extensions.javascript import arrow_function, assign
 import json
-import amenities_mapper.cdp as amenities_mapper.cdp as cdp
-import amenities_mapper.amenities_mapper.map_util as mu
-import amenities_mapper.starbucks as amenities_mapper.starbucks as starbucks
+import amenities_mapper.cdp as cdp
+import amenities_mapper.map_util as mu
+import amenities_mapper.starbucks as starbucks
 from dash.dependencies import Output, Input
 
 

@@ -6,8 +6,8 @@ import math
 
 from geopy import distance
 
-from demographics import import_income, import_demographics
-import cdp
+from amenities_mapper.demographics import import_income, import_demographics
+import amenities_mapper.cdp as cdp
 
 def geo_df():
     '''

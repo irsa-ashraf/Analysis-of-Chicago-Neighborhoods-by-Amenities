@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import json
-import map_util as mu
+import amenities_mapper.map_util as mu
 
 API = "BcNrdvBLg1ZFWdTWKfTBxmu48ehAXPGM"
 

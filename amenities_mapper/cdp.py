@@ -8,7 +8,7 @@ import json
 from matplotlib.style import library
 from sodapy import Socrata
 import pandas as pd
-import starbucks
+import amenities_mapper.starbucks as starbucks
 
 
 API_KEY = "9Qto0x2IrJoK0BwbM4NSKwpkr"
